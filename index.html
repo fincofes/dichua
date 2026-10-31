@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chùa Digital - Đi Chùa Online & Tích Công Đức</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font - Be Vietnam Pro & Merriweather -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            light: '#F3E5AB',
+                            dark: '#AA7C11',
+                            glow: '#FFD700'
+                        },
+                        temple: {
+                            red: '#8B0000',
+                            darkred: '#4A0000',
+                            bg: '#0F0D0E',
+                            card: '#1A1618',
+                            border: '#3A2E2B'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Be Vietnam Pro', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom CSS Animation & Effects */
+        body {
+            background-color: #0F0D0E;
+            color: #E5E0D8;
+            background-image: radial-gradient(circle at 50% 20%, rgba(139, 0, 0, 0.15), transparent 70%);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* Floating +1 Karma text animation */
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-50px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-90px) scale(0.9);
+            }
+        }
+
+        .karma-float {
+            position: absolute;
+            animation: floatUp 1.2s ease-out forwards;
+            pointer-events: none;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Smoke effect for Incense */
+        @keyframes smokeRise {
+            0% {
+                transform: translateY(0) scaleX(1) scaleY(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-60px) scaleX(1.8) scaleY(1.3);
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-130px) scaleX(3) scaleY(1.8);
+                opacity: 0;
+            }
+        }
+
+        .smoke-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(235, 230, 220, 0.6);
+            border-radius: 50%;
+            filter: blur(4px);
+            animation: smokeRise 3s infinite ease-in-out;
+        }
+
+        /* Wooden Fish vibration */
+        @keyframes tapGong {
+            0% { transform: scale(1); }
+            30% { transform: scale(0.92) rotate(-2deg); }
+            60% { transform: scale(1.05) rotate(2deg); }
+            100% { transform: scale(1); }
+        }
+
+        .tap-animate {
+            animation: tapGong 0.15s ease-in-out;
+        }
+
+        /* Golden Glow Effects */
+        .gold-glow {
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
+        }
+
+        .gold-text-glow {
+            text-shadow: 0 0 12px rgba(243, 229, 171, 0.5);
+        }
+
+        /* Scrollbar custom */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F0D0E;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3A2E2B;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen font-sans antialiased overflow-x-hidden">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-temple-border bg-temple-card/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-dark to-temple-red flex items-center justify-center border border-gold/40 shadow-lg">
+                    <i class="fa-solid fa-gopuram text-gold-light text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold font-serif text-gold-light tracking-wide">CHÙA DIGITAL</h1>
+                    <p class="text-xs text-gray-400">Không Gian Tĩnh Tâm & Tích Công Đức</p>
+                </div>
+            </div>
+
+            <!-- Total Karma Counter -->
+            <div class="flex items-center bg-temple-bg/90 border border-gold/30 rounded-full px-4 py-1.5 shadow-inner">
+                <i class="fa-solid fa-circle-dot text-gold animate-pulse mr-2 text-sm"></i>
+                <span class="text-xs text-gray-400 mr-2 uppercase font-semibold">Công Đức:</span>
+                <span id="globalKarmaCounter" class="text-base font-bold text-gold-light font-mono">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-xl mx-auto my-4 px-4 w-full">
+        <div class="grid grid-cols-3 gap-2 p-1.5 bg-temple-card rounded-2xl border border-temple-border text-sm font-semibold">
+            <button onclick="switchTab('gomo')" id="tab-gomo" class="tab-btn active-tab py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 bg-gradient-to-r from-temple-red to-gold-dark text-white shadow-md">
+                <i class="fa-solid fa-[#000] fa-drum"></i>
+                <span>Gõ Mõ</span>
+            </button>
+            <button onclick="switchTab('thaphuong')" id="tab-thaphuong" class="tab-btn py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-gray-400 hover:text-gold-light">
+                <i class="fa-solid fa-fire"></i>
+                <span>Thắp Hương</span>
+            </button>
+            <button onclick="switchTab('xocque')" id="tab-xocque" class="tab-btn py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-gray-400 hover:text-gold-light">
+                <i class="fa-solid fa-scroll"></i>
+                <span>Rút Quẻ</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-4xl mx-auto w-full px-4 pb-12">
+        
+        <!-- ================= SECTION 1: GÕ MÕ (CLICKER GAME) ================= -->
+        <section id="sec-gomo" class="tab-content block">
+            <div class="bg-temple-card/60 border border-temple-border rounded-3xl p-6 md:p-10 text-center relative overflow-hidden shadow-2xl backdrop-blur-sm">
+                
+                <div class="mb-4">
+                    <span class="bg-gold/10 text-gold-light border border-gold/20 text-xs px-3 py-1 rounded-full uppercase tracking-wider">Tâm Tĩnh Thân An</span>
+                    <h2 class="text-2xl md:text-3xl font-serif font-bold text-gold-light mt-3 mb-1">Gõ Mõ Tích Công Đức</h2>
+                    <p class="text-sm text-gray-400">Nhấp vào Mõ để xua tan phiền não, tích lũy thiện căn</p>
+                </div>
+
+                <!-- Interactive Wooden Fish Container -->
+                <div class="relative my-8 flex justify-center items-center cursor-pointer" onclick="tapWoodenFish(event)">
+                    
+                    <!-- Floating Text Anchor -->
+                    <div id="floatContainer" class="absolute inset-0 pointer-events-none z-20"></div>
+
+                    <!-- Glowing background aura -->
+                    <div class="absolute w-64 h-64 bg-gold/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+
+                    <!-- Mõ SVG Graphic -->
+                    <div id="moxu" class="relative transition-transform duration-150 transform hover:scale-105 active:scale-95">
+                        <svg width="220" height="190" viewBox="0 0 200 170" fill="none" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
+                            <!-- Base Shadow -->
+                            <ellipse cx="100" cy="155" rx="75" ry="12" fill="#000000" opacity="0.5"/>
+                            <!-- Main Wooden Fish Body -->
+                            <path d="M20 95C20 45 55 20 100 20C145 20 180 45 180 95C180 140 145 155 100 155C55 155 20 140 20 95Z" fill="url(#wood_grad)" stroke="#5C3A21" stroke-width="4"/>
+                            <!-- Inner Wooden Carving & Fish Mouth -->
+                            <path d="M40 90C40 70 65 55 100 55C135 55 160 70 160 90C160 115 135 125 100 125C65 125 40 115 40 90Z" fill="#3D2314" stroke="#26140A" stroke-width="3"/>
+                            <ellipse cx="100" cy="90" rx="40" ry="20" fill="#24130A"/>
+                            <circle cx="65" cy="75" r="6" fill="#D4AF37" opacity="0.8"/>
+                            <circle cx="135" cy="75" r="6" fill="#D4AF37" opacity="0.8"/>
+                            <!-- Fish Scale Patterns -->
+                            <path d="M75 40 Q 85 30 95 40" stroke="#8B5A2B" stroke-width="3" fill="none"/>
+                            <path d="M105 40 Q 115 30 125 40" stroke="#8B5A2B" stroke-width="3" fill="none"/>
+                            <path d="M90 30 Q 100 20 110 30" stroke="#8B5A2B" stroke-width="3" fill="none"/>
+                            <!-- Gradients -->
+                            <defs>
+                                <linearGradient id="wood_grad" x1="20" y1="20" x2="180" y2="155" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#A06535"/>
+                                    <stop offset="50%" stop-color="#6D411F"/>
+                                    <stop offset="100%" stop-color="#3D210F"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        
+                        <!-- Dùi Gõ Mõ (Mallet) -->
+                        <div id="mallet" class="absolute -top-4 -right-2 transform rotate-12 transition-transform duration-100 pointer-events-none origin-bottom-left">
+                            <svg width="90" height="90" viewBox="0 0 100 100" fill="none">
+                                <rect x="20" y="45" width="70" height="10" rx="5" transform="rotate(-35 20 45)" fill="#5C3A21" stroke="#2A180D" stroke-width="2"/>
+                                <circle cx="20" cy="55" r="16" fill="#8B0000" stroke="#D4AF37" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto Tap Toggle & Stats -->
+                <div class="flex flex-wrap justify-center items-center gap-4 mt-6 pt-6 border-t border-temple-border/50">
+                    <button onclick="toggleAutoGong()" id="btnAutoGong" class="px-5 py-2.5 rounded-full border border-gold/40 bg-temple-bg hover:bg-gold/10 text-gold-light text-xs font-semibold tracking-wider transition">
+                        <i class="fa-solid fa-robot mr-1.5"></i> Bật Tự Động Gõ (Auto)
+                    </button>
+                    <button onclick="resetKarma()" class="px-4 py-2.5 rounded-full border border-red-900/40 bg-temple-bg hover:bg-red-950/40 text-gray-400 hover:text-red-300 text-xs transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Đặt Lại
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 2: THẮP HƯƠNG (INCENSE) ================= -->
+        <section id="sec-thaphuong" class="tab-content hidden">
+            <div class="bg-temple-card/60 border border-temple-border rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-sm">
+                
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-serif font-bold text-gold-light">Thắp Hương Cầu An</h2>
+                    <p class="text-xs text-gray-400 mt-1">Lòng thành thắp một nén nhang, nguyện xin bình an & may mắn</p>
+                </div>
+
+                <!-- Choose Altar Space -->
+                <div class="grid grid-cols-3 gap-2 md:gap-4 mb-6">
+                    <button onclick="selectAltar('phat')" id="altar-btn-phat" class="altar-tab active-altar p-3 rounded-2xl border border-gold/40 bg-gold/10 text-center transition">
+                        <i class="fa-solid fa-hands-praying text-gold text-lg block mb-1"></i>
+                        <span class="text-xs font-semibold block text-gold-light">Đại Hùng Điện</span>
+                    </button>
+                    <button onclick="selectAltar('thantai')" id="altar-btn-thantai" class="altar-tab p-3 rounded-2xl border border-temple-border bg-temple-bg text-center transition opacity-70 hover:opacity-100">
+                        <i class="fa-solid fa-coins text-gold text-lg block mb-1"></i>
+                        <span class="text-xs font-semibold block text-gray-300">Thần Tài Sứ Giả</span>
+                    </button>
+                    <button onclick="selectAltar('tonghiep')" id="altar-btn-tonghiep" class="altar-tab p-3 rounded-2xl border border-temple-border bg-temple-bg text-center transition opacity-70 hover:opacity-100">
+                        <i class="fa-solid fa-laptop-code text-gold text-lg block mb-1"></i>
+                        <span class="text-xs font-semibold block text-gray-300">Tổ Nghiệp Creator</span>
+                    </button>
+                </div>
+
+                <!-- Altar Visual Display -->
+                <div class="relative rounded-2xl bg-gradient-to-b from-temple-darkred/40 to-temple-bg border border-temple-border p-6 text-center min-h-[340px] flex flex-col justify-between items-center overflow-hidden">
+                    
+                    <!-- Statue / Image Placeholder -->
+                    <div class="my-auto transition-all duration-500" id="altarDisplay">
+                        <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-t from-gold-dark/40 to-gold/20 border-2 border-gold/50 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+                            <i id="altarIcon" class="fa-solid fa-hands-praying text-4xl md:text-5xl text-gold-light"></i>
+                        </div>
+                        <h3 id="altarTitle" class="font-serif font-bold text-lg text-gold-light mt-3">Đức Phật Thích Ca</h3>
+                        <p id="altarSub" class="text-xs text-gray-400">Cầu Bình An - Gia Đạo Hòa Thuận</p>
+                    </div>
+
+                    <!-- Incense Burner & Sticks -->
+                    <div class="relative w-full max-w-xs mt-4">
+                        
+                        <!-- Smoke Particles Layer -->
+                        <div id="incenseSmoke" class="absolute left-1/2 -top-20 -translate-x-1/2 w-12 h-20 pointer-events-none hidden">
+                            <div class="smoke-particle" style="left: 20%; animation-delay: 0s;"></div>
+                            <div class="smoke-particle" style="left: 50%; animation-delay: 0.8s;"></div>
+                            <div class="smoke-particle" style="left: 80%; animation-delay: 1.5s;"></div>
+                        </div>
+
+                        <!-- 3 Incense Sticks -->
+                        <div id="incenseSticks" class="flex justify-center items-end space-x-3 h-24 mb-1 opacity-20 transition-opacity duration-500">
+                            <!-- Stick 1 -->
+                            <div class="w-1.5 h-20 bg-amber-800 rounded-t-sm relative">
+                                <div class="incense-tip absolute top-0 left-0 w-full h-2 bg-red-500 rounded-t-sm animate-pulse hidden"></div>
+                            </div>
+                            <!-- Stick 2 (Middle - Taller) -->
+                            <div class="w-1.5 h-24 bg-amber-800 rounded-t-sm relative">
+                                <div class="incense-tip absolute top-0 left-0 w-full h-2 bg-red-500 rounded-t-sm animate-pulse hidden"></div>
+                            </div>
+                            <!-- Stick 3 -->
+                            <div class="w-1.5 h-20 bg-amber-800 rounded-t-sm relative">
+                                <div class="incense-tip absolute top-0 left-0 w-full h-2 bg-red-500 rounded-t-sm animate-pulse hidden"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bronze Burner Vessel -->
+                        <div class="w-32 h-14 mx-auto bg-gradient-to-r from-gold-dark via-gold to-gold-dark rounded-b-3xl border-t-4 border-yellow-200/50 shadow-2xl relative flex items-center justify-center">
+                            <span class="text-[10px] text-amber-950 font-bold uppercase tracking-widest border border-amber-950/30 px-2 py-0.5 rounded">Tâm Huệ</span>
+                        </div>
+                    </div>
+
+                    <!-- Incense Timer Status -->
+                    <div id="incenseTimer" class="text-xs font-mono text-gold/80 mt-2 h-5">Chưa thắp hương</div>
+                </div>
+
+                <!-- Action Button & Wish Input -->
+                <div class="mt-5 space-y-3">
+                    <input type="text" id="wishInput" placeholder="Nhập lời nguyện cầu (ví dụ: Cầu mong không bị bug, tăng lương...)" class="w-full bg-temple-bg border border-temple-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold/60 transition placeholder-gray-600 text-center">
+                    
+                    <button onclick="lightIncense()" id="btnLightIncense" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-temple-red via-red-800 to-gold-dark text-gold-light font-bold text-sm tracking-wide shadow-lg hover:brightness-110 active:scale-[0.99] transition">
+                        <i class="fa-solid fa-fire-flame-curved mr-2"></i> Thành Tâm Thắp Hương
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 3: RÚT QUẺ (FORTUNE TELLING) ================= -->
+        <section id="sec-xocque" class="tab-content hidden">
+            <div class="bg-temple-card/60 border border-temple-border rounded-3xl p-6 md:p-8 text-center shadow-2xl backdrop-blur-sm">
+                
+                <div class="mb-6">
+                    <h2 class="text-2xl font-serif font-bold text-gold-light">Rút Quẻ Đầu Năm & Hàng Ngày</h2>
+                    <p class="text-xs text-gray-400 mt-1">Xin quẻ xua đi vướng bận, định hướng hành trình sắp tới</p>
+                </div>
+
+                <!-- Tube & Sticks Visual -->
+                <div id="fortuneContainer" class="my-6 relative min-h-[220px] flex flex-col justify-center items-center">
+                    
+                    <!-- Cylinder Tube SVG -->
+                    <div id="fortuneTube" class="relative cursor-pointer transition-transform duration-300 hover:scale-105" onclick="shakeFortuneTube()">
+                        <svg width="120" height="160" viewBox="0 0 120 160" fill="none">
+                            <!-- Bamboo Sticks inside -->
+                            <g id="sticksGroup">
+                                <rect x="35" y="10" width="6" height="90" rx="3" fill="#D4AF37"/>
+                                <rect x="47" y="5" width="6" height="95" rx="3" fill="#C59B27"/>
+                                <rect x="59" y="15" width="6" height="85" rx="3" fill="#E5C158"/>
+                                <rect x="71" y="8" width="6" height="92" rx="3" fill="#B38715"/>
+                                <rect x="83" y="18" width="6" height="80" rx="3" fill="#D4AF37"/>
+                            </g>
+                            <!-- Tube Body -->
+                            <path d="M25 50 C25 45 95 45 95 50 L90 145 C90 152 30 152 30 145 Z" fill="url(#tubeGrad)" stroke="#5C3A21" stroke-width="3"/>
+                            <ellipse cx="60" cy="50" rx="35" ry="8" fill="#2E180C" stroke="#5C3A21" stroke-width="2"/>
+                            <!-- Red Ribbon -->
+                            <rect x="28" y="85" width="64" height="22" fill="#8B0000"/>
+                            <text x="60" y="100" fill="#FFD700" font-size="11" font-weight="bold" text-anchor="middle" font-family="serif">LỘC</text>
+                            <defs>
+                                <linearGradient id="tubeGrad" x1="25" y1="50" x2="95" y2="150" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#8B4513"/>
+                                    <stop offset="50%" stop-color="#5C2E0B"/>
+                                    <stop offset="100%" stop-color="#3D1E07"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <p class="text-xs text-gold/70 mt-2 font-medium">Chạm vào ống quẻ để xóc</p>
+                    </div>
+
+                </div>
+
+                <!-- Shake Button -->
+                <button onclick="shakeFortuneTube()" id="btnShake" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-gold-dark via-gold to-gold-dark text-temple-bg font-bold text-sm tracking-wide shadow-lg hover:brightness-110 transition transform active:scale-95">
+                    <i class="fa-solid fa-hand-sparkles mr-2"></i> Thành Tâm Xóc Quẻ
+                </button>
+
+                <!-- Fortune Card Modal / Display Result -->
+                <div id="fortuneResult" class="hidden mt-8 p-6 bg-gradient-to-b from-temple-card to-temple-bg border-2 border-gold/40 rounded-2xl text-left relative gold-glow animate-fade-in">
+                    
+                    <div class="flex justify-between items-start border-b border-gold/20 pb-3 mb-4">
+                        <div>
+                            <span id="resCategory" class="text-[10px] uppercase tracking-widest text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/30">Thượng Thượng Quẻ</span>
+                            <h3 id="resTitle" class="text-xl font-serif font-bold text-gold-light mt-1">Quẻ Số 08: Đại Cát Đại Lợi</h3>
+                        </div>
+                        <div class="text-2xl text-gold" id="resBadge">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+
+                    <!-- Poem Section -->
+                    <div class="bg-temple-bg/80 p-4 rounded-xl border border-temple-border italic font-serif text-amber-200/90 text-sm leading-relaxed mb-4 text-center">
+                        <p id="resPoem">"Mây tan sương tạnh ánh trăng thấu,<br>Vạn sự hanh thông bước tiến xa.<br>Cố gắng kiên trì công chẳng uổng,<br>Nghìn trùng sóng gió cũng qua phà."</p>
+                    </div>
+
+                    <!-- Explanation Section -->
+                    <div class="space-y-2 text-xs md:text-sm text-gray-300 leading-relaxed">
+                        <p><strong class="text-gold-light">Lời Giải / Lời Khuyên:</strong> <span id="resExplain">Mọi dự định, công việc trong thời gian tới đều có quý nhân phù hộ. Dù làm nội dung hay làm văn phòng đều hanh thông.</span></p>
+                        <p><strong class="text-gold-light">Lời Nhắc IT/Creator:</strong> <span id="resAdvice">Code chạy mượt ngay lần F5 đầu tiên. Video đăng tải dễ khớp thuật toán xu hướng.</span></p>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-temple-border flex justify-between items-center">
+                        <span class="text-[11px] text-gray-500">Chùa Digital - Tâm An Tự Tại</span>
+                        <button onclick="shareFortune()" class="text-xs text-gold hover:underline flex items-center">
+                            <i class="fa-solid fa-share-nodes mr-1"></i> Sao chép kết quả
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-temple-border bg-temple-card/40 py-6 text-center text-xs text-gray-500 mt-auto">
+        <p class="font-serif">Nam Mô A Di Đà Phật - Chúc Bạn Luôn An Lạc & May Mắn</p>
+        <p class="mt-1 text-[11px] text-gray-600">Thành kính phát tâm • Tương thích hoàn hảo trên Mobile & GitHub Pages</p>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gold-dark text-temple-bg px-5 py-2.5 rounded-full font-bold text-xs shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center space-x-2">
+        <i class="fa-solid fa-bell"></i>
+        <span id="toastMsg">Thông báo</span>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        /* ================= STATE MANAGEMENT ================= */
+        let totalKarma = parseInt(localStorage.getItem('digital_karma') || '0');
+        let autoGongInterval = null;
+        let audioCtx = null;
+        let incenseTimerInterval = null;
+
+        // Initialize display
+        document.getElementById('globalKarmaCounter').innerText = totalKarma.toLocaleString();
+
+        /* ================= WEB AUDIO API (NO MP3 DEPENDENCY) ================= */
+        // Synthesize realistic Wooden Fish sound
+        function playWoodenFishSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                // Sine wave with rapid pitch drop mimics wood strike
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.08);
+
+                // Quick attack, exponential decay envelope
+                gain.gain.setValueAtTime(0.9, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.13);
+            } catch (e) {
+                console.log("Audio play blocked or unsupported");
+            }
+        }
+
+        /* ================= FEATURE 1: WOODEN FISH CLICKER ================= */
+        function tapWoodenFish(event) {
+            totalKarma += 1;
+            localStorage.setItem('digital_karma', totalKarma);
+            document.getElementById('globalKarmaCounter').innerText = totalKarma.toLocaleString();
+
+            // Sound
+            playWoodenFishSound();
+
+            // Visual Tap Animation
+            const moxu = document.getElementById('moxu');
+            const mallet = document.getElementById('mallet');
+            
+            moxu.classList.remove('tap-animate');
+            void moxu.offsetWidth; // trigger reflow
+            moxu.classList.add('tap-animate');
+
+            // Mallet swing animation
+            mallet.style.transform = 'rotate(-25deg)';
+            setTimeout(() => { mallet.style.transform = 'rotate(12deg)'; }, 100);
+
+            // Floating "+1 Karma" or "-1 Trouble" Text Effect
+            createFloatingText(event);
+        }
+
+        function createFloatingText(event) {
+            const container = document.getElementById('floatContainer');
+            const el = document.createElement('div');
+            el.className = 'karma-float text-gold-light text-sm md:text-base';
+            
+            // Randomize between Karma +1 and Trouble -1
+            const phrases = ["Công đức +1", "Phiền não -1", "Tâm an +1", "Trí tuệ +1", "Tịnh tâm +1"];
+            const text = phrases[Math.floor(Math.random() * phrases.length)];
+            el.innerText = text;
+
+            // Positioning near click or center
+            let x = event ? (event.offsetX || 100) : 100;
+            let y = event ? (event.offsetY || 80) : 80;
+            
+            // Random offset for organic feel
+            x += (Math.random() - 0.5) * 40;
+
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+
+            container.appendChild(el);
+
+            setTimeout(() => {
+                el.remove();
+            }, 1200);
+        }
+
+        function toggleAutoGong() {
+            const btn = document.getElementById('btnAutoGong');
+            if (autoGongInterval) {
+                clearInterval(autoGongInterval);
+                autoGongInterval = null;
+                btn.classList.remove('bg-gold', 'text-temple-bg');
+                btn.classList.add('bg-temple-bg', 'text-gold-light');
+                btn.innerHTML = '<i class="fa-solid fa-robot mr-1.5"></i> Bật Tự Động Gõ (Auto)';
+                showToast("Đã tắt tự động gõ");
+            } else {
+                autoGongInterval = setInterval(() => {
+                    tapWoodenFish(null);
+                }, 800);
+                btn.classList.remove('bg-temple-bg', 'text-gold-light');
+                btn.classList.add('bg-gold', 'text-temple-bg');
+                btn.innerHTML = '<i class="fa-solid fa-pause mr-1.5"></i> Dừng Tự Động Gõ';
+                showToast("Đã bật tự động tích công đức!");
+            }
+        }
+
+        function resetKarma() {
+            if (confirm("Bạn có muốn đặt lại số điểm Công Đức về 0?")) {
+                totalKarma = 0;
+                localStorage.setItem('digital_karma', '0');
+                document.getElementById('globalKarmaCounter').innerText = '0';
+                showToast("Đã đặt lại công đức");
+            }
+        }
+
+        /* ================= FEATURE 2: INCENSE LIGHTING ================= */
+        const altars = {
+            phat: {
+                title: "Đức Phật Thích Ca",
+                sub: "Cầu Bình An - Gia Đạo Hòa Thuận",
+                icon: "fa-hands-praying"
+            },
+            thantai: {
+                title: "Thần Tài Sứ Giả",
+                sub: "Cầu Chiêu Tài - Hanh Thông Tài Lộc",
+                icon: "fa-coins"
+            },
+            tonghiep: {
+                title: "Tổ Nghiệp Creator & Dev",
+                sub: "Cầu Render Nhanh - Code Không Bug - Video Triệu View",
+                icon: "fa-laptop-code"
+            }
+        };
+
+        function selectAltar(key) {
+            document.querySelectorAll('.altar-tab').forEach(b => {
+                b.classList.remove('active-altar', 'border-gold/40', 'bg-gold/10');
+                b.classList.add('border-temple-border', 'bg-temple-bg', 'opacity-70');
+            });
+
+            const selectedBtn = document.getElementById(`altar-btn-${key}`);
+            selectedBtn.classList.add('active-altar', 'border-gold/40', 'bg-gold/10');
+            selectedBtn.classList.remove('opacity-70');
+
+            const info = altars[key];
+            document.getElementById('altarTitle').innerText = info.title;
+            document.getElementById('altarSub').innerText = info.sub;
+            document.getElementById('altarIcon').className = `fa-solid ${info.icon} text-4xl md:text-5xl text-gold-light`;
+        }
+
+        function lightIncense() {
+            const wish = document.getElementById('wishInput').value.trim();
+            const sticks = document.getElementById('incenseSticks');
+            const smoke = document.getElementById('incenseSmoke');
+            const tips = document.querySelectorAll('.incense-tip');
+            const timerEl = document.getElementById('incenseTimer');
+
+            sticks.classList.remove('opacity-20');
+            sticks.classList.add('opacity-100');
+            smoke.classList.remove('hidden');
+            tips.forEach(t => t.classList.remove('hidden'));
+
+            // Play sound cue
+            playWoodenFishSound();
+
+            let secondsLeft = 180; // 3 minutes burning time
+            showToast(wish ? `Đã gửi lời nguyện: "${wish}"` : "Thành tâm thắp nén nhang cầu an!");
+
+            if (incenseTimerInterval) clearInterval(incenseTimerInterval);
+
+            incenseTimerInterval = setInterval(() => {
+                secondsLeft--;
+                const m = Math.floor(secondsLeft / 60);
+                const s = secondsLeft % 60;
+                timerEl.innerText = `Nhang đang cháy... Còn ${m}:${s < 10 ? '0' : ''}${s}`;
+
+                if (secondsLeft <= 0) {
+                    clearInterval(incenseTimerInterval);
+                    smoke.classList.add('hidden');
+                    tips.forEach(t => t.classList.add('hidden'));
+                    sticks.classList.add('opacity-20');
+                    timerEl.innerText = "Nhang đã tàn - Nguyện ước được chứng giám";
+                }
+            }, 1000);
+        }
+
+        /* ================= FEATURE 3: FORTUNE TELLING (RÚT QUẺ) ================= */
+        const fortuneDatabase = [
+            {
+                category: "Thượng Thượng Quẻ",
+                title: "Quẻ Số 01: Thuận Buồm Xuôi Gió",
+                badge: "fa-crown",
+                poem: "Mây quang mây tạnh trời xanh thắm,\nVạn sự hanh thông bước tiến xa.\nDù làm công việc hay sáng tạo,\nCát khí tràn trề vạn túp lều.",
+                explain: "Thời vận tới, làm việc gì cũng có quý nhân phù trợ, gia đạo êm ấm, tài lộc khởi sắc.",
+                advice: "Render video 1 phát ăn ngay, thuật toán đẩy lên xu hướng. Code chạy mượt mà không lỗi."
+            },
+            {
+                category: "Thượng Cát Quẻ",
+                title: "Quẻ Số 08: Khai Hoa Kết Quả",
+                badge: "fa-star",
+                poem: "Trồng cây đến ngày ăn quả ngọt,\nSương giăng đầu ngõ đã dần tan.\nChỉ cần vững chí không chùn bước,\nTiền tài danh vọng tự tìm sang.",
+                explain: "Những nỗ lực âm thầm thời gian qua chuẩn bị đơm hoa kết trái. Kiên trì thêm một chút sẽ gặt hái lớn.",
+                advice: "Dự án sắp chốt, KPI hoàn thành vượt chỉ tiêu. Rất thích hợp để triển khai ý tưởng mới."
+            },
+            {
+                category: "Trung Bình Quẻ",
+                title: "Quẻ Số 15: Tĩnh Tâm Tích Lũy",
+                badge: "fa-scale-balanced",
+                poem: "Sóng lặng sông sâu chớ vội vàng,\nChờ thời chuyển hướng bước đi sang.\nTài lộc chưa vung nhưng ổn định,\nTự tại trong lòng thắng vinh quang.",
+                explain: "Mọi việc ở mức trung bình ổn định. Chưa nên đầu tư mạo hiểm hay thay đổi hướng đi quá đột ngột.",
+                advice: "Hạn chế thức khuya fix bug hay đu trend quá sức. Nên dành thời gian tối ưu lại quy trình làm việc."
+            },
+            {
+                category: "Thượng Cát Quẻ",
+                title: "Quẻ Số 22: Hỷ Sự Tới Nhà",
+                badge: "fa-gem",
+                poem: "Tháng mới mang theo nhiều may mắn,\nTin vui gõ cửa chốn công sở.\nNgười cảm mến ta, sếp tin cậy,\nLộc tài rủng rỉnh ấm lòng ta.",
+                explain: "Có lộc về tiền bạc hoặc nhận được sự hỗ trợ bất ngờ từ đồng nghiệp/sếp.",
+                advice: "Có khả năng săn deal công cụ Pro thành công giá rẻ hoặc được thưởng đột xuất."
+            },
+            {
+                category: "Trung Cát Quẻ",
+                title: "Quẻ Số 33: Khai Sáng Trí Tuệ",
+                badge: "fa-brain",
+                poem: "Đèn sách bao ngày tâm đã sáng,\nMở ra lối đi nét vẽ vàng.\nSáng tạo thăng hoa kịch bản mượt,\nThành công gõ cửa vượt gian gian.",
+                explain: "Tín hiệu rất tốt cho những ai đang làm sáng tạo nội dung, nghệ thuật, viết lách hay tư duy logic.",
+                advice: "Ý tưởng mới dồi dào. Gemini/ChatGPT hỗ trợ cực kỳ ăn ý, viết ra kịch bản nào chất kịch bản đó."
+            }
+        ];
+
+        function shakeFortuneTube() {
+            const tube = document.getElementById('fortuneTube');
+            const btn = document.getElementById('btnShake');
+            const resultBox = document.getElementById('fortuneResult');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            resultBox.classList.add('hidden');
+
+            // Play audio loop effect
+            let shakes = 0;
+            const shakeInterval = setInterval(() => {
+                playWoodenFishSound();
+                tube.style.transform = `rotate(${shakes % 2 === 0 ? 12 : -12}deg) scale(1.08)`;
+                shakes++;
+
+                if (shakes > 8) {
+                    clearInterval(shakeInterval);
+                    tube.style.transform = 'rotate(0deg) scale(1)';
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                    
+                    // Show Result
+                    displayFortuneResult();
+                }
+            }, 120);
+        }
+
+        function displayFortuneResult() {
+            const randomFortune = fortuneDatabase[Math.floor(Math.random() * fortuneDatabase.length)];
+            
+            document.getElementById('resCategory').innerText = randomFortune.category;
+            document.getElementById('resTitle').innerText = randomFortune.title;
+            document.getElementById('resPoem').innerHTML = randomFortune.poem.replace(/\n/g, '<br>');
+            document.getElementById('resExplain').innerText = randomFortune.explain;
+            document.getElementById('resAdvice').innerText = randomFortune.advice;
+            document.getElementById('resBadge').innerHTML = `<i class="fa-solid ${randomFortune.badge}"></i>`;
+
+            const resultBox = document.getElementById('fortuneResult');
+            resultBox.classList.remove('hidden');
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            showToast("Đã rút được quẻ linh ứng!");
+        }
+
+        function shareFortune() {
+            const title = document.getElementById('resTitle').innerText;
+            const category = document.getElementById('resCategory').innerText;
+            const text = `Tôi vừa rút được [${category} - ${title}] tại Chùa Digital! Tích công đức thành tâm, cầu bình an & may mắn!`;
+            
+            // Clipboard Copy Fallback
+            const dummy = document.createElement('textarea');
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            showToast("Đã sao chép kết quả quẻ vào bộ nhớ tạm!");
+        }
+
+        /* ================= TAB NAVIGATION ================= */
+        function switchTab(tabKey) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-gradient-to-r', 'from-temple-red', 'to-gold-dark', 'text-white', 'shadow-md');
+                btn.classList.add('text-gray-400');
+            });
+
+            document.getElementById(`sec-${tabKey}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            activeBtn.classList.add('bg-gradient-to-r', 'from-temple-red', 'to-gold-dark', 'text-white', 'shadow-md');
+            activeBtn.classList.remove('text-gray-400');
+        }
+
+        /* ================= UTILS ================= */
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
